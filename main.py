@@ -9,27 +9,27 @@ from forms.login import LoginForm
 from forms.task import TasksForm
 
 
-
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'timkarazvod'
 login_manager = LoginManager()
 login_manager.init_app(app)
+
 
 @app.route('/')
 def index():
     return render_template('base.html')
 
 
-@app.route('/register', methods=["GET", "POST"])
+@app.route('/reg', methods=["GET", "POST"])
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
-            return render_template('register.html', title='Регистрация', form=form,
+            return render_template('reg.html', title='Регистрация', form=form,
                                    message='Пароли не совпадают')
         db_sess = db_session.create_session()
         if db_sess.query(User).filter(User.email == form.email.data).first():
-            return render_template('register.html', title='Регистрация', form=form,
+            return render_template('reg.html', title='Регистрация', form=form,
                                    message='Пользователь уже есть')
         user = User(
             login=form.login.data,
@@ -58,9 +58,9 @@ def login():
             login_user(user, remember=form.remember_me.data)
             return redirect('/')
         else:
-            return render_template('log_in.html', message='Неправильный логин или пароль',
+            return render_template('log.html', message='Неправильный логин или пароль',
                                    form=form)
-    return render_template('log_in.html', title='Авторизация', form=form)
+    return render_template('log.html', title='Авторизация', form=form)
 
 
 @app.route('/logout')
