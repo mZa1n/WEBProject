@@ -7,6 +7,7 @@ from forms.user import RegisterForm
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from forms.login import LoginForm
 from forms.task import TasksForm
+from random import choices
 
 
 app = Flask(__name__)
@@ -31,10 +32,11 @@ def register():
         if db_sess.query(User).filter(User.email == form.email.data).first():
             return render_template('reg.html', title='Регистрация', form=form,
                                    message='Пользователь уже есть')
+        code = generate_code()
         user = User(
             login=form.login.data,
             email=form.email.data,
-            about=form.about.data
+            bot_id=code
         )
         user.set_password(form.password.data)
         db_sess.add(user)
@@ -68,6 +70,17 @@ def login():
 def logout():
     logout_user()
     return redirect('/')
+
+
+def generate_code():
+    alph = 'qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890'
+    arr = []
+    for i in range(12):
+        arr += choices(alph)
+    code = ''
+    for el in arr:
+        code += el
+    return code
 
 
 def main():
