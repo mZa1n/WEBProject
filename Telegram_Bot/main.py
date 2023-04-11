@@ -43,6 +43,22 @@ async def linking_to_a_bot(update, context):
                                            text=f'Приятно познакомиться, {res[0][0]}')
 
 
+async def check_tasks(update, context):
+    async with aiosqlite.connect('../db/users.db') as conn:
+        async with conn.execute(f'SELECT task FROM tasks') \
+                as cursor:
+            res = await cursor.fetchall()
+    if res is None:
+        await context.bot.send_message(chat_id=update.effective_chat.id,
+                                       text='У вас нету поставленных задач')
+    else:
+        arr = []
+        for el in res:
+            arr.append(el.created_date)
+        await context.bot.send_message(chat_id=update.effective_chat.id,
+                                       text=f'До близжайшей задачи вам осталось: {min(arr)}')
+
+
 async def send_message(update, context):
     args = context.args
     message = ' '.join(args)
@@ -59,6 +75,7 @@ def main():
     app.add_handler(CommandHandler('send', send_message))
     app.add_handler(CommandHandler('linking_to_a_bot', linking_to_a_bot))
     app.add_handler(CommandHandler('help', help))
+    app.add_handler(CommandHandler('check_tasks', check_tasks))
     app.add_error_handler(error)
     app.run_polling()
 
