@@ -7,6 +7,7 @@ from forms.user import RegisterForm
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from forms.login import LoginForm
 from forms.task import TasksForm
+from forms.task_del import TasksFormDel
 from random import choices
 
 
@@ -18,7 +19,12 @@ login_manager.init_app(app)
 
 @app.route('/')
 def index():
-    return render_template('base.html')
+    news = None
+    db_sess = db_session.create_session()
+    if current_user.is_authenticated:
+        news = db_sess.query(Tasks).filter(
+            Tasks.user == current_user)
+    return render_template('index.html', news=news)
 
 
 @app.route('/reg', methods=["GET", "POST"])
@@ -63,6 +69,39 @@ def login():
             return render_template('log.html', message='Неправильный логин или пароль',
                                    form=form)
     return render_template('log.html', title='Авторизация', form=form)
+
+
+@app.route('/tasks',  methods=['GET', 'POST'])
+@login_required
+def add_tasks():
+    form = TasksForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        tasks = Tasks()
+        tasks.title = form.title.data
+        tasks.content = form.content.data
+        current_user.tasks.append(tasks)
+        db_sess.merge(current_user)
+        db_sess.commit()
+        return redirect('/')
+    return render_template('tasks.html', title='Добавление задачи',
+                           form=form)
+
+
+@app.route('/tasks_delete/<int:id>', methods=['GET', 'POST'])
+@login_required
+def tasks_delete(id):
+    form = TasksFormDel()
+    db_sess = db_session.create_session()
+    tasks = db_sess.query(Tasks).filter(Tasks.id == id,
+                                      Tasks.user == current_user
+                                      ).first()
+    if tasks:
+        db_sess.delete(tasks)
+        db_sess.commit()
+    else:
+        abort(404)
+    return redirect('/')
 
 
 @app.route('/logout')
