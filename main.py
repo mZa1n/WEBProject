@@ -9,6 +9,7 @@ from forms.login import LoginForm
 from forms.task import TasksForm
 from forms.task_del import TasksFormDel
 from random import choices
+from data.news import News
 
 
 app = Flask(__name__)
@@ -18,6 +19,13 @@ login_manager.init_app(app)
 
 
 @app.route('/')
+def main_page():
+    db_sess = db_session.create_session()
+    news = db_sess.query(News)
+    return render_template('main_page.html', items=news)
+
+
+@app.route('/main')
 def index():
     news = None
     db_sess = db_session.create_session()
@@ -25,6 +33,11 @@ def index():
         news = db_sess.query(Tasks).filter(
             Tasks.user == current_user)
     return render_template('index.html', news=news)
+
+
+@app.route('/profile')
+def profile():
+    return render_template('profile.html')
 
 
 @app.route('/reg', methods=["GET", "POST"])

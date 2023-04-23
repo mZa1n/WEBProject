@@ -1,56 +1,19 @@
 import flask
 from flask import jsonify, request
 from . import db_session
-from .tasks import News
+from .tasks import Tasks
 
 
 blueprint = flask.Blueprint('news_api', __name__, template_folder='templates')
 
 
-@blueprint.route('/api/news')
-def get_news():
+@blueprint.route('/check_task/<int:id>')
+def check(id):
     db_sess = db_session.create_session()
-    news = db_sess.query(News).all()
-    return jsonify({
-        'news': [item.to_dict(only=('title', 'content', 'user.login')) for item in news]
-    })
-
-
-@blueprint.route('/api/news/<int:news_id>', methods=["GET", "POST"])
-def get_one_news(news_id):
-    db_sess = db_session.create_session()
-    news = db_sess.query(News).get(news_id)
-    if not news:
-        return jsonify({'error': 'Not found'})
-    return jsonify({
-        'news': news.to_dict(only=('title', 'content', 'user.login', 'is_private', 'id'))
-    })
-
-
-@blueprint.route('/api/news', methods=["POST"])
-def add_news():
-    if not request.json:
-        return jsonify({'error': 'Empty request'})
-    elif not all([key in request.json for key in ['title', 'content', 'user_id', 'is_private']]):
-        return jsonify({'error': 'Bad request'})
-    db_sess = db_session.create_session()
-    news = News(
-        title=request.json['title'],
-        content=request.json['content'],
-        user_id=request.json['user_id'],
-        is_private=request.json['is_private']
+    items = db_sess.query(Tasks)
+    return jsonify(
+        {
+            'tasks': [item.to_dict(only=('title', 'content', 'id'))
+                      for item in items]
+        }
     )
-    db_sess.add(news)
-    db_sess.commit()
-    return jsonify({'Success': 'OK'})
-
-
-@blueprint.route('/api/news/<int:news_id>', methods=["DELETE"])
-def delete_news(news_id):
-    db_sess = db_session.create_session()
-    news = db_sess.query(News).get(news_id)
-    if not news:
-        return jsonify({'error': 'Not found'})
-    db_sess.delete(news)
-    db_sess.commit()
-    return jsonify({'success': 'OK'})

@@ -4,7 +4,7 @@ import datetime as dt
 
 
 bot = telebot.TeleBot('6260341046:AAEon6fpsK_hiq67oIafCmJWJ6NSw9U3GOc')
-con = sqlite3.connect('../db/users.db')
+con = sqlite3.connect('../db/users1.db')
 
 
 @bot.message_handler(commands=['start'])

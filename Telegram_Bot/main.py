@@ -1,6 +1,7 @@
 from telegram.ext import CommandHandler, Application
 import datetime as dt
 import aiosqlite
+from requests import get
 
 
 async def start(update, context):
@@ -30,7 +31,7 @@ async def linking_to_a_bot(update, context):
     if token[-1] == '/linking_to_a_bot':
         await context.bot.send_message(chat_id=update.effective_chat.id, text='Вы не ввели токен!')
     else:
-        async with aiosqlite.connect('../db/users.db') as conn:
+        async with aiosqlite.connect('../db/users1.db') as conn:
             async with conn.execute(f'SELECT login FROM users WHERE bot_id = "{token[-1]}" ') \
                     as cursor:
                 res = await cursor.fetchone()
@@ -44,19 +45,22 @@ async def linking_to_a_bot(update, context):
 
 
 async def check_tasks(update, context):
-    async with aiosqlite.connect('../db/users.db') as conn:
-        async with conn.execute(f'SELECT task FROM tasks') \
-                as cursor:
-            res = await cursor.fetchall()
-    if res is None:
-        await context.bot.send_message(chat_id=update.effective_chat.id,
-                                       text='У вас нету поставленных задач')
+    id = update.message.text.split()[-1]
+    if id.isdigit() and id:
+        res = get(f'http://localhost:5000/check_task/{int(id)}')
+        print(res)
+        if res is None:
+            await context.bot.send_message(chat_id=update.effective_chat.id,
+                                           text='У вас нету поставленных задач')
+        else:
+            arr = []
+            for el in res:
+                arr.append(el.created_date)
+            await context.bot.send_message(chat_id=update.effective_chat.id,
+                                           text=f'До близжайшей задачи вам осталось: {min(arr)}')
     else:
-        arr = []
-        for el in res:
-            arr.append(el.created_date)
         await context.bot.send_message(chat_id=update.effective_chat.id,
-                                       text=f'До близжайшей задачи вам осталось: {min(arr)}')
+                                       text='Вы не ввели id или ошиблись при наборе id')
 
 
 async def send_message(update, context):
