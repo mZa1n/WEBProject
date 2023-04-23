@@ -4,5 +4,5 @@ from wtforms.validators import DataRequired
 
 
 class TasksFormDel(FlaskForm):
-    title = StringField('Номер задачи', validators=[DataRequired()])
+    content = StringField('Номер задачи', validators=[DataRequired()])
     submit = SubmitField('Удалить задачу')

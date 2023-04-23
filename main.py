@@ -88,20 +88,23 @@ def add_tasks():
                            form=form)
 
 
-@app.route('/tasks_delete/<int:id>', methods=['GET', 'POST'])
+@app.route('/tasks_delete', methods=['GET', 'POST'])
 @login_required
-def tasks_delete(id):
+def tasks_delete():
     form = TasksFormDel()
-    db_sess = db_session.create_session()
-    tasks = db_sess.query(Tasks).filter(Tasks.id == id,
-                                      Tasks.user == current_user
-                                      ).first()
-    if tasks:
-        db_sess.delete(tasks)
-        db_sess.commit()
-    else:
-        abort(404)
-    return redirect('/')
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        tasks = db_sess.query(Tasks).filter(Tasks.id == int(form.content.data),
+                                          Tasks.user == current_user
+                                          ).first()
+        if tasks:
+            db_sess.delete(tasks)
+            db_sess.commit()
+        else:
+            abort(404)
+        return redirect('/')
+    return render_template('tasks_del.html', title='Удаление задачи',
+                           form=form)
 
 
 @app.route('/logout')
