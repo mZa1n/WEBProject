@@ -10,6 +10,8 @@ from forms.task import TasksForm
 from forms.task_del import TasksFormDel
 from random import choices
 from data.news import News
+from data.news_api import blueprint
+from forms.give_admin import GiveAdmin
 
 
 app = Flask(__name__)
@@ -38,6 +40,31 @@ def index():
 @app.route('/profile')
 def profile():
     return render_template('profile.html')
+
+
+@app.route('/give_admin', methods=["GET", "POST"])
+def give_admin():
+    form = GiveAdmin()
+    if form.validate_on_submit():
+        if form.id.data.isdigit():
+            db_sess = db_session.create_session()
+            user = db_sess.query(User).filter(User.id == int(form.id.data)).first()
+            if user:
+                if user.admin:
+                    return render_template('give_admin.html', form=form,
+                                           message='У пользователя уже имеются админ-права')
+                user = db_sess.query(User).filter(User.id == int(form.id.data))
+                if user:
+                    user.admin = 1
+                    db_sess.commit()
+                    return redirect('/profile')
+            else:
+                return render_template('give_admin.html', form=form,
+                                       message='Такого пользователя не существует')
+        else:
+            return render_template('give_admin.html', form=form,
+                                   message='Вы ввели не id')
+    return render_template('give_admin.html', form=form)
 
 
 @app.route('/reg', methods=["GET", "POST"])
@@ -117,6 +144,11 @@ def tasks_delete(id):
     return redirect('/')
 
 
+@app.route('/link_to_a_bot')
+def link():
+    return render_template('link.html')
+
+
 @app.route('/logout')
 @login_required
 def logout():
@@ -137,6 +169,7 @@ def generate_code():
 
 def main():
     db_session.global_init('db/users.db')
+    app.register_blueprint(blueprint)
     app.run()
 
 

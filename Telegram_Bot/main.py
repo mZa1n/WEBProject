@@ -47,7 +47,7 @@ async def linking_to_a_bot(update, context):
 async def check_tasks(update, context):
     id = update.message.text.split()[-1]
     if id.isdigit() and id:
-        res = get(f'http://localhost:5000/check_task/{int(id)}')
+        res = get(f'https://liberating-scalloped-afterthought.glitch.me/check_task')
         print(res)
         if res is None:
             await context.bot.send_message(chat_id=update.effective_chat.id,
