@@ -12,6 +12,8 @@ from random import choices
 from data.news import News
 from data.news_api import blueprint
 from forms.give_admin import GiveAdmin
+from forms.news_form import NewsForm
+from forms.news_del import NewsFormDel
 
 
 app = Flask(__name__)
@@ -53,10 +55,11 @@ def give_admin():
                 if user.admin:
                     return render_template('give_admin.html', form=form,
                                            message='У пользователя уже имеются админ-права')
-                user = db_sess.query(User).filter(User.id == int(form.id.data))
-                if user:
-                    user.admin = 1
+                item = db_sess.query(User).filter(User.id == int(form.id.data)).first()
+                if item:
+                    item.admin = True
                     db_sess.commit()
+                    db_sess.close()
                     return redirect('/profile')
             else:
                 return render_template('give_admin.html', form=form,
@@ -126,6 +129,36 @@ def add_tasks():
         return redirect('/')
     return render_template('tasks.html', title='Добавление задачи',
                            form=form)
+
+
+@app.route('/news', methods=["GET", "POST"])
+@login_required
+def news():
+    form = NewsForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        news = News()
+        news.title = form.title.data
+        news.content = form.content.data
+        db_sess.merge(news)
+        db_sess.commit()
+        return redirect('/')
+    return render_template('news.html', title='Добавление новости',
+                           form=form)
+
+
+@app.route('/delete_news/<int:id>', methods=["GET", "POST"])
+@login_required
+def delete_news(id):
+    form = NewsFormDel()
+    db_sess = db_session.create_session()
+    news = db_sess.query(News).filter(News.id == id).first()
+    if news:
+        db_sess.delete(news)
+        db_sess.commit()
+    else:
+        abort(404)
+    return redirect('/')
 
 
 @app.route('/tasks_delete/<int:id>', methods=['GET', 'POST'])

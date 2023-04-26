@@ -1,7 +1,7 @@
 from telegram.ext import CommandHandler, Application
 import datetime as dt
 import aiosqlite
-from requests import get
+from requests import get, put
 
 
 async def start(update, context):
@@ -31,23 +31,20 @@ async def linking_to_a_bot(update, context):
     if token[-1] == '/linking_to_a_bot':
         await context.bot.send_message(chat_id=update.effective_chat.id, text='Вы не ввели токен!')
     else:
-        async with aiosqlite.connect('../db/users1.db') as conn:
-            async with conn.execute(f'SELECT login FROM users WHERE bot_id = "{token[-1]}" ') \
-                    as cursor:
-                res = await cursor.fetchone()
-
+        res = get(f'https://fringe-hilarious-airship.glitch.me/check_link/{token[-1]}')
+        if res:
+            put(f'https://fringe-hilarious-airship.glitch.me/link/{token[-1]}')
+            await context.bot.send_message(chat_id=update.effective_chat.id,
+                                           text='Удачно!')
         if res is None:
             await context.bot.send_message(chat_id=update.effective_chat.id,
                                            text='Похоже вы ошиблись в токене! Попробуйте снова')
-        else:
-            await context.bot.send_message(chat_id=update.effective_chat.id,
-                                           text=f'Приятно познакомиться, {res[0][0]}')
 
 
 async def check_tasks(update, context):
     id = update.message.text.split()[-1]
     if id.isdigit() and id:
-        res = get(f'https://liberating-scalloped-afterthought.glitch.me/check_task')
+        res = get(f'https://liberating-scalloped-afterthought.glitch.me/check_task/1').json()
         print(res)
         if res is None:
             await context.bot.send_message(chat_id=update.effective_chat.id,

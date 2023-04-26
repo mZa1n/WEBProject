@@ -5,6 +5,7 @@
     <h5 style="padding-top: 20px">Ваш никнейм: {{ current_user.login }}</h5>
     <h5 style="padding-top: 20px">Статус админа: {{ current_user.admin }}</h5>
     <h5 style="padding-top: 20px">Дата создания: {{ current_user.created_date }}</h5>
+    <h5 style="padding-top: 20px">Статус бота: {{ current_user.linked }}</h5>
     <a href="/logout" class="btn btn-secondary">Выйти из профиля</a>
     <a href="/link_to_a_bot" class="btn btn-secondary">Привязка бота</a>
     {% if current_user.admin %}

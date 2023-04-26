@@ -2,7 +2,18 @@
 
 {% block content %}
   <h1>Новости сайта</h1>
-  {% for el in items %}
-    <br>{{ el }}
+  {% for item in items[::-1] %}
+    <div class="col-md6 border rounded">
+        <h2>{{ item.title }}</h2>
+        <div>
+            {{ item.content }}
+        </div>
+        <div>
+            Дата написания - {{ item.created_date }} Номер новости - {{ item.id }}
+        </div>
+    </div>
   {% endfor %}
+  {% if current_user.admin %}
+    <a href="/news" class="btn btn-secondary">Добавление новости</a>
+  {% endif %}
 {% endblock %}

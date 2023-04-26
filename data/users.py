@@ -18,6 +18,7 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     tasks = orm.relationship('Tasks', back_populates='user')
     bot_id = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     admin = sqlalchemy.Column(sqlalchemy.Boolean, nullable=True, default=False)
+    linked = sqlalchemy.Column(sqlalchemy.Boolean, nullable=True, default=False)
 
     def set_password(self, password):
         self.hashed_password = generate_password_hash(password)
