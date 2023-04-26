@@ -7,7 +7,7 @@ from forms.user import RegisterForm
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from forms.login import LoginForm
 from forms.task import TasksForm
-from forms.task_del import TasksFormDel
+from forms.task_delete import TasksFormDel
 from random import choices
 
 
@@ -103,8 +103,46 @@ def tasks_delete():
         else:
             abort(404)
         return redirect('/')
-    return render_template('tasks_del.html', title='Удаление задачи',
+    return render_template('tasks_delete.html', title='Удаление задачи',
                            form=form)
+
+
+@app.route('/news/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_news(id):
+    form = TasksForm()
+    if request.method == "GET":
+        db_sess = db_session.create_session()
+        news = db_sess.query(Tasks).filter(Tasks.id == id,
+                                          Tasks.user == current_user
+                                          ).first()
+        if news:
+            form.title.data = news.title
+            form.content.data = news.content
+        else:
+            abort(404)
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        news = db_sess.query(Tasks).filter(Tasks.id == id,
+                                          Tasks.user == current_user
+                                          ).first()
+        if news:
+            news.title = form.title.data
+            news.content = form.content.data
+            news.is_private = form.is_private.data
+            db_sess.commit()
+            return redirect('/')
+        else:
+            abort(404)
+    return render_template('tasks.html',
+                           title='Редактирование задачи',
+                           form=form
+                           )
+
+
+@app.route('/help')
+def help():
+    return render_template('help.html')
 
 
 @app.route('/logout')

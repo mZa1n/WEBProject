@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Записи в блоге</h1>
+<h1> Задачи </h1>
 {% if news %}
     {% for item in news %}
     <div class="col-md6 border rounded">
@@ -10,13 +10,16 @@
             {{ item.content }}
         </div>
         <div>
-            Автор - {{ item.user_id }}, Дата написания - {{ item.created_date }}
+            Номер задачи - {{ item.id }}, Дата написания - {{ item.created_date }}
         </div>
     </div>
+{% if current_user.is_authenticated and current_user == item.user %}
+    <div>
+        <a href="/news/{{ item.id }}" class="btn btn-warning">
+            Изменить
+        </a>
+    </div>
+{% endif %}
     {% endfor %}
 {% endif %}
-    {% if current_user.is_authenticated %}
-        <a href="tasks" class="btn btn-secondary">Добавить задачу</a>
-
-    {% endif %}
 {% endblock %}
