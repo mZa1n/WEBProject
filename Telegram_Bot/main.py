@@ -1,6 +1,7 @@
 from telegram.ext import CommandHandler, Application
 import datetime as dt
 import aiosqlite
+from requests import get, put
 
 
 async def start(update, context):
@@ -22,7 +23,9 @@ async def start(update, context):
 async def help(update, context):
     await context.bot.send_message(chat_id=update.effective_chat.id,
                                    text='Для того чтобы законектить сайт и бота, '
-                                        'напишите /linking_to_a_bot и ваш token с сайта')
+                                        'напишите /linking_to_a_bot и ваш token с сайта \n'
+                                        'Для того чтобы проверить самую близжайшую задачу,'
+                                        'напишите /check_tasks и ваш id')
 
 
 async def linking_to_a_bot(update, context):
@@ -30,33 +33,37 @@ async def linking_to_a_bot(update, context):
     if token[-1] == '/linking_to_a_bot':
         await context.bot.send_message(chat_id=update.effective_chat.id, text='Вы не ввели токен!')
     else:
-        async with aiosqlite.connect('../db/users.db') as conn:
-            async with conn.execute(f'SELECT login FROM users WHERE bot_id = "{token[-1]}" ') \
-                    as cursor:
-                res = await cursor.fetchone()
-
+        res = get(f'https://fringe-hilarious-airship.glitch.me/check_link/{token[-1]}')
+        if res:
+            put(f'https://fringe-hilarious-airship.glitch.me/link/{token[-1]}')
+            await context.bot.send_message(chat_id=update.effective_chat.id,
+                                           text='Удачно!')
         if res is None:
             await context.bot.send_message(chat_id=update.effective_chat.id,
                                            text='Похоже вы ошиблись в токене! Попробуйте снова')
-        else:
-            await context.bot.send_message(chat_id=update.effective_chat.id,
-                                           text=f'Приятно познакомиться, {res[0][0]}')
 
 
 async def check_tasks(update, context):
-    async with aiosqlite.connect('../db/users.db') as conn:
-        async with conn.execute(f'SELECT task FROM tasks') \
-                as cursor:
-            res = await cursor.fetchall()
-    if res is None:
-        await context.bot.send_message(chat_id=update.effective_chat.id,
-                                       text='У вас нету поставленных задач')
+    id = update.message.text.split()[-1]
+    if id.isdigit() and id:
+        res = get(f'https://impossible-private-barometer.glitch.me/check_task/{int(id)}').json()
+        if res is None:
+            await context.bot.send_message(chat_id=update.effective_chat.id,
+                                           text='У вас нету поставленных задач')
+        else:
+            if res['tasks']:
+                arr = []
+                for el in res['tasks']:
+                    arr.append(el['created_date'])
+                await context.bot.send_message(chat_id=update.effective_chat.id,
+                                               text=f'До близжайшей задачи вам осталось: '
+                                                    f'{min(arr)}')
+            else:
+                await context.bot.send_message(chat_id=update.effective_chat.id,
+                                               text='У вас еще нету поставленных задач!')
     else:
-        arr = []
-        for el in res:
-            arr.append(el.created_date)
         await context.bot.send_message(chat_id=update.effective_chat.id,
-                                       text=f'До близжайшей задачи вам осталось: {min(arr)}')
+                                       text='Вы не ввели id или ошиблись при наборе id')
 
 
 async def send_message(update, context):
@@ -66,7 +73,7 @@ async def send_message(update, context):
 
 
 async def error(update, context):
-    print(f'Update {update} caused error {context.error}')
+    print(f'caused error {context.error}')
 
 
 def main():

@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Выдача админ-прав</h1>
+<form action="" method="post">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.id.label }} <br>
+            {{ form.id(class="form-control", type="id") }} <br>
+            {% for error in form.id.errors %}
+            <p class="alert alert-danger" role="alert">
+            {{ error }}
+            {% endfor %}
+        </p>
+        <p> {{ form.submit(class="btn btn-primary", type="submit") }} </p>
+        <div>{{ message }}</div>
+    </form>
+{% endblock %}

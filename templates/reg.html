@@ -36,7 +36,8 @@
             {{ error }}
             {% endfor %}
         </p>
-        <p> {{ form.submit(class="btn btn-primary", type="submit") }} </p>
+        <p onclick="window.location.href = 'http://127.0.0.1:5000/';"> {{ form.submit(class="btn btn-primary", type="submit") }} </p>
         {{ message }}
+        <a href="/">Вернуться назад</a>
     </form>
 {% endblock %}

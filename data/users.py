@@ -5,9 +5,9 @@ from sqlalchemy import orm
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from sqlalchemy_serializer import SerializerMixin
-from random import choices
 
 
+# Таблица пользователя в бд
 class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     __tablename__ = 'users'
 
@@ -18,6 +18,8 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     created_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
     tasks = orm.relationship('Tasks', back_populates='user')
     bot_id = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    admin = sqlalchemy.Column(sqlalchemy.Boolean, nullable=True, default=False)
+    linked = sqlalchemy.Column(sqlalchemy.Boolean, nullable=True, default=False)
 
     def set_password(self, password):
         self.hashed_password = generate_password_hash(password)
