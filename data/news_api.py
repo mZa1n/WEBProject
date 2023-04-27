@@ -12,7 +12,6 @@ blueprint = flask.Blueprint('news_api', __name__, template_folder='templates')
 def check(id):
     db_sess = db_session.create_session()
     items = db_sess.query(Tasks).filter(id == Tasks.user_id)
-    print(items)
     return jsonify(
         {
             'tasks': [item.to_dict(only=('title', 'content', 'id'))
