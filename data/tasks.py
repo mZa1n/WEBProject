@@ -5,6 +5,7 @@ from .db_session import SqlAlchemyBase
 from sqlalchemy_serializer import SerializerMixin
 
 
+# Таблица задач в бд
 class Tasks(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'tasks'
 

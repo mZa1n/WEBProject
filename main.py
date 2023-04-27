@@ -14,14 +14,17 @@ from data.news_api import blueprint
 from forms.give_admin import GiveAdmin
 from forms.news_form import NewsForm
 from forms.news_del import NewsFormDel
+# ---------------------------------------Бибилиотеки------------------------------------------------
 
 
+# ---------------------------------------Основной код-----------------------------------------------
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'timkarazvod'
 login_manager = LoginManager()
 login_manager.init_app(app)
 
 
+# Главная страница
 @app.route('/')
 def main_page():
     db_sess = db_session.create_session()
@@ -29,6 +32,7 @@ def main_page():
     return render_template('main_page.html', items=news)
 
 
+# Страница с задачами
 @app.route('/main')
 def index():
     news = None
@@ -39,11 +43,13 @@ def index():
     return render_template('index.html', news=news)
 
 
+# Страница с профилем
 @app.route('/profile')
 def profile():
     return render_template('profile.html')
 
 
+# Страница с выдачей админ-прав
 @app.route('/give_admin', methods=["GET", "POST"])
 def give_admin():
     form = GiveAdmin()
@@ -70,6 +76,7 @@ def give_admin():
     return render_template('give_admin.html', form=form)
 
 
+# Страница с регистрацией
 @app.route('/reg', methods=["GET", "POST"])
 def register():
     form = RegisterForm()
@@ -93,12 +100,14 @@ def register():
     return render_template('reg.html', title='Регистрация', form=form)
 
 
+# Авторизация пользователя
 @login_manager.user_loader
 def load_user(user_id):
     db_sess = db_session.create_session()
     return db_sess.query(User).get(user_id)
 
 
+# Страница входа в аккаунт
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
@@ -114,6 +123,7 @@ def login():
     return render_template('log.html', title='Авторизация', form=form)
 
 
+# Страница добавления задачи
 @app.route('/tasks',  methods=['GET', 'POST'])
 @login_required
 def add_tasks():
@@ -131,6 +141,7 @@ def add_tasks():
                            form=form)
 
 
+# Страница добавления новости сайта
 @app.route('/news', methods=["GET", "POST"])
 @login_required
 def news():
@@ -147,6 +158,7 @@ def news():
                            form=form)
 
 
+# Страница удаления новости сайта
 @app.route('/delete_news/<int:id>', methods=["GET", "POST"])
 @login_required
 def delete_news(id):
@@ -161,6 +173,7 @@ def delete_news(id):
     return redirect('/')
 
 
+# Страница удаления задачи
 @app.route('/tasks_delete/<int:id>', methods=['GET', 'POST'])
 @login_required
 def tasks_delete(id):
@@ -177,11 +190,13 @@ def tasks_delete(id):
     return redirect('/')
 
 
+# Страница с токеном для коннекта с ботом
 @app.route('/link_to_a_bot')
 def link():
     return render_template('link.html')
 
 
+# Выход пользователя из аккаунта
 @app.route('/logout')
 @login_required
 def logout():
@@ -189,6 +204,7 @@ def logout():
     return redirect('/')
 
 
+# Функция генерации кода для пользователя
 def generate_code():
     alph = 'qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890'
     arr = []
@@ -200,6 +216,7 @@ def generate_code():
     return code
 
 
+# Подключение к бд, регистрация API и запуск сайта
 def main():
     db_session.global_init('db/users.db')
     app.register_blueprint(blueprint)

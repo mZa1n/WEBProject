@@ -4,14 +4,14 @@ from . import db_session
 from .tasks import Tasks
 from .users import User
 
-
+# ----------------------------API-------------------------------------------------------------------
 blueprint = flask.Blueprint('news_api', __name__, template_folder='templates')
 
 
 @blueprint.route('/check_task/<int:id>', methods=["GET"])
 def check(id):
     db_sess = db_session.create_session()
-    items = db_sess.query(Tasks).filter(id == Tasks.id)
+    items = db_sess.query(Tasks).filter(id == Tasks.user_id)
     print(items)
     return jsonify(
         {
