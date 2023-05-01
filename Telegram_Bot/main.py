@@ -33,9 +33,9 @@ async def linking_to_a_bot(update, context):
     if token[-1] == '/linking_to_a_bot':
         await context.bot.send_message(chat_id=update.effective_chat.id, text='Вы не ввели токен!')
     else:
-        res = get(f'https://fringe-hilarious-airship.glitch.me/check_link/{token[-1]}')
+        res = get(f'https://octagonal-thankful-operation.glitch.me/check_link/{token[-1]}')
         if res:
-            put(f'https://fringe-hilarious-airship.glitch.me/link/{token[-1]}')
+            put(f'https://octagonal-thankful-operation.glitch.me/link/{token[-1]}')
             await context.bot.send_message(chat_id=update.effective_chat.id,
                                            text='Удачно!')
         if res is None:
@@ -46,7 +46,7 @@ async def linking_to_a_bot(update, context):
 async def check_tasks(update, context):
     id = update.message.text.split()[-1]
     if id.isdigit() and id:
-        res = get(f'https://impossible-private-barometer.glitch.me/check_task/{int(id)}').json()
+        res = get(f'https://octagonal-thankful-operation.glitch.me/check_task/{int(id)}').json()
         if res is None:
             await context.bot.send_message(chat_id=update.effective_chat.id,
                                            text='У вас нету поставленных задач')
