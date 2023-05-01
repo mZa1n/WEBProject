@@ -1,6 +1,5 @@
 from telegram.ext import CommandHandler, Application
 import datetime as dt
-import aiosqlite
 from requests import get, put
 
 
